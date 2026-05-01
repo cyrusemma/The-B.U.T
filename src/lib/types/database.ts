@@ -38,6 +38,7 @@ export interface Database {
           resurrection_score?: number
           updated_at?: string
         }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -98,6 +99,7 @@ export interface Database {
           is_public?: boolean
           featured?: boolean
         }
+        Relationships: []
       }
       project_files: {
         Row: {
@@ -117,7 +119,8 @@ export interface Database {
           file_size_bytes?: number | null
           storage_path: string
         }
-        Update: never
+        Update: Record<string, never>
+        Relationships: []
       }
       autopsies: {
         Row: {
@@ -144,6 +147,7 @@ export interface Database {
           confidence_score?: number | null
           community_diagnosis_count?: number
         }
+        Relationships: []
       }
       autopsy_comments: {
         Row: {
@@ -166,6 +170,7 @@ export interface Database {
         Update: {
           upvotes?: number
         }
+        Relationships: []
       }
       adoptions: {
         Row: {
@@ -204,6 +209,7 @@ export interface Database {
           resurrected_at?: string | null
           resurrection_url?: string | null
         }
+        Relationships: []
       }
       adoption_chats: {
         Row: {
@@ -219,7 +225,8 @@ export interface Database {
           sender_id: string
           message_text: string
         }
-        Update: never
+        Update: Record<string, never>
+        Relationships: []
       }
       payments: {
         Row: {
@@ -247,9 +254,12 @@ export interface Database {
           payment_method?: string | null
         }
         Update: {
+          stripe_payment_intent_id?: string | null
           status?: string
           completed_at?: string | null
+          payment_method?: string | null
         }
+        Relationships: []
       }
       daily_stats: {
         Row: {
@@ -295,8 +305,45 @@ export interface Database {
           death_cause_interest?: number
           death_cause_market?: number
         }
+        Relationships: []
+      }
+      curator_notes: {
+        Row: {
+          id: string
+          project_id: string
+          curator_id: string
+          content: string
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          curator_id: string
+          content: string
+          is_public?: boolean
+        }
+        Update: {
+          content?: string
+          is_public?: boolean
+        }
+        Relationships: []
       }
     }
+    Views: { [_ in never]: never }
+    Functions: {
+      increment_daily_stat: {
+        Args: { p_date: string; p_column: string }
+        Returns: undefined
+      }
+      increment_autopsy_comment_count: {
+        Args: { p_autopsy_id: string }
+        Returns: undefined
+      }
+    }
+    Enums: { [_ in never]: never }
+    CompositeTypes: { [_ in never]: never }
   }
 }
 
@@ -310,6 +357,7 @@ export type Adoption = Database['public']['Tables']['adoptions']['Row']
 export type AdoptionChat = Database['public']['Tables']['adoption_chats']['Row']
 export type Payment = Database['public']['Tables']['payments']['Row']
 export type DailyStats = Database['public']['Tables']['daily_stats']['Row']
+export type CuratorNote = Database['public']['Tables']['curator_notes']['Row']
 
 // Extended types with joins
 export type ProjectWithProfile = Project & {

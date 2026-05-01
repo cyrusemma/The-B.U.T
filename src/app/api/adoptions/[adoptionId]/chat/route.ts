@@ -63,6 +63,20 @@ export async function GET(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const { data: adoption } = await supabase
+    .from('adoptions')
+    .select('adopter_id, creator_id')
+    .eq('id', params.adoptionId)
+    .single()
+
+  if (!adoption) {
+    return NextResponse.json({ error: 'Adoption not found' }, { status: 404 })
+  }
+
+  if (user.id !== adoption.adopter_id && user.id !== adoption.creator_id) {
+    return NextResponse.json({ error: 'Not a participant' }, { status: 403 })
+  }
+
   const { data, error } = await supabase
     .from('adoption_chats')
     .select('*, profiles(*)')

@@ -1,0 +1,55 @@
+
+> bureau-of-unfinished-things@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.15
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 4.9s
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 879ms (125 modules)
+ ○ Compiling /profile/[username] ...
+ ✓ Compiled /profile/[username] in 11.4s (1281 modules)
+ ✓ Compiled in 574ms (575 modules)
+ ✓ Compiled in 158ms (561 modules)
+ GET /profile/cyrusadetu_289 200 in 14638ms
+ GET /profile/cyrusadetu_289 200 in 1000ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 5.8s (1511 modules)
+ GET /morgue 200 in 6428ms
+ GET /morgue/archive 200 in 6352ms
+ GET /login 200 in 6289ms
+ GET / 200 in 7057ms
+ ○ Compiling /directory ...
+ ✓ Compiled /directory in 2.4s (1523 modules)
+ GET /about 200 in 2945ms
+ GET /terms 200 in 3139ms
+ GET /directory 200 in 3096ms
+ GET /login 200 in 3168ms
+ ○ Compiling /api/projects ...
+ ✓ Compiled /api/projects in 853ms (867 modules)
+ GET /api/projects?limit=1 200 in 1763ms
+ GET /profile/cyrusadetu_289 200 in 2009ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 5.2s (1626 modules)
+ GET / 500 in 6239ms
+ GET /profile/cyrusadetu_289 500 in 1059ms
+ ✓ Compiled in 1080ms (883 modules)
+ GET /profile/cyrusadetu_289 500 in 797ms
+ GET / 200 in 1274ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1123ms (1629 modules)
+ GET /_next/static/css/app/layout.css?v=1777605158329 404 in 1659ms
+ GET /_next/static/chunks/main-app.js?v=1777605158329 404 in 1840ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 1898ms
+ GET /_next/static/chunks/app/page.js 404 in 72ms
+ GET /profile/cyrusadetu_289 500 in 959ms
+ GET / 404 in 249ms
+ GET / 404 in 245ms
+ GET / 404 in 254ms
+ GET / 404 in 246ms
+ GET / 404 in 259ms
+ ✓ Compiled in 11.7s (1638 modules)
+ ✓ Compiled in 3.6s (1613 modules)

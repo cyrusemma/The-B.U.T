@@ -12,7 +12,7 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { url } = await request.json()
+  const { url, agreementSigned } = await request.json()
 
   if (!url?.trim()) {
     return NextResponse.json({ error: 'URL required' }, { status: 400 })
@@ -21,7 +21,7 @@ export async function POST(
   // Verify user is the adopter
   const { data: adoption } = await supabase
     .from('adoptions')
-    .select('adopter_id')
+    .select('adopter_id, adoption_type, ip_transfer_agreement_signed, ip_transfer_signed_at')
     .eq('id', params.adoptionId)
     .single()
 
@@ -29,14 +29,31 @@ export async function POST(
     return NextResponse.json({ error: 'Only the adopter can mark a resurrection' }, { status: 403 })
   }
 
+  const requiresAgreement =
+    adoption.adoption_type === 'resurrection_rights' && !adoption.ip_transfer_agreement_signed
+
+  if (requiresAgreement && !agreementSigned) {
+    return NextResponse.json(
+      { error: 'IP transfer agreement must be acknowledged first' },
+      { status: 400 }
+    )
+  }
+
   const serviceClient = createServiceClient()
+  const now = new Date().toISOString()
 
   const { error } = await serviceClient
     .from('adoptions')
     .update({
-      resurrected_at: new Date().toISOString(),
+      resurrected_at: now,
       resurrection_url: url.trim(),
       status: 'resurrected',
+      ip_transfer_agreement_signed:
+        adoption.ip_transfer_agreement_signed || adoption.adoption_type === 'resurrection_rights'
+          ? true
+          : adoption.ip_transfer_agreement_signed,
+      ip_transfer_signed_at:
+        requiresAgreement ? now : adoption.ip_transfer_signed_at,
     })
     .eq('id', params.adoptionId)
 

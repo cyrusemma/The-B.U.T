@@ -82,7 +82,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('projects')
-    .select('*, profiles(*), project_files(*), autopsies(*)', { count: 'exact' })
+    .select('*, profiles!creator_id(*), project_files(*), autopsies(*)', { count: 'exact' })
     .eq('is_public', true)
     .order('created_at', { ascending: false })
     .range((page - 1) * limit, page * limit - 1)

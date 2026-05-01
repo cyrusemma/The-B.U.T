@@ -1,5 +1,24 @@
 import type { Metadata } from 'next'
+import { Newsreader, Manrope } from 'next/font/google'
+import { ThemeProvider } from 'next-themes'
 import './globals.css'
+import { CursorGlow } from '@/components/common/CursorGlow'
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-newsreader',
+  display: 'swap',
+  adjustFontFallback: false,
+})
+
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-manrope',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'The Bureau of Unfinished Things',
@@ -19,8 +38,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="antialiased">{children}</body>
+    <html
+      lang="en"
+      className={`${newsreader.variable} ${manrope.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="antialiased bureau-scroll">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
+          <CursorGlow />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }

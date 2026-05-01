@@ -1,6 +1,9 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
+import type { Project, Autopsy } from '@/lib/types/database'
+
+type ProjectWithAutopsy = Project & { autopsies: Autopsy | null }
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
@@ -38,7 +41,7 @@ export async function POST(
     .from('projects')
     .select('*, autopsies(*)')
     .eq('id', params.projectId)
-    .single()
+    .single() as unknown as { data: ProjectWithAutopsy | null }
 
   if (!project) {
     return NextResponse.json({ error: 'Project not found' }, { status: 404 })

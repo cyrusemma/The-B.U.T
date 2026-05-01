@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-09-30.acacia',
+  apiVersion: '2025-02-24.acacia',
 })
 
 export async function POST(request: Request) {
@@ -14,16 +14,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { projectId, creatorId, adoptionType, pricePaid } = await request.json()
+  const { projectId } = await request.json()
 
-  if (!projectId || !creatorId || !adoptionType) {
+  if (!projectId) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
   // Check project isn't already adopted
   const { data: project } = await supabase
     .from('projects')
-    .select('id, is_adopted, title')
+    .select('id, creator_id, is_adopted, title, adoption_type, adoption_price')
     .eq('id', projectId)
     .single()
 
@@ -32,12 +32,14 @@ export async function POST(request: Request) {
   }
 
   // Prevent self-adoption
-  if (user.id === creatorId) {
+  if (user.id === project.creator_id) {
     return NextResponse.json({ error: 'You cannot adopt your own project' }, { status: 400 })
   }
 
   const serviceClient = createServiceClient()
-  const isPaid = adoptionType === 'resurrection_rights' && pricePaid > 0
+  const adoptionType = project.adoption_type
+  const pricePaid = project.adoption_price ?? null
+  const isPaid = adoptionType === 'resurrection_rights' && typeof pricePaid === 'number' && pricePaid > 0
 
   // Create adoption record
   const { data: adoption, error: adoptionError } = await serviceClient
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
     .insert({
       project_id: projectId,
       adopter_id: user.id,
-      creator_id: creatorId,
+      creator_id: project.creator_id,
       adoption_type: adoptionType,
       price_paid: pricePaid ?? null,
       status: isPaid ? 'pending_payment' : 'active',
