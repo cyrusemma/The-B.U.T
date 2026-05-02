@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useTheme } from 'next-themes'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Moon, Sun, Menu, X, User, LayoutDashboard, LogOut } from 'lucide-react'
+import { Menu, X, User, LayoutDashboard, LogOut, Settings } from 'lucide-react'
 
 interface NavUser {
   username?: string | null
   display_name?: string | null
+  avatar_url?: string | null
 }
 
 interface BureauNavbarProps {
@@ -17,19 +17,16 @@ interface BureauNavbarProps {
 }
 
 const NAV_LINKS = [
-  { href: '/morgue',  label: 'The Morgue' },
-  { href: '/submit',  label: 'Submit' },
-  { href: '/about',   label: 'About' },
+  { href: '/morgue',   label: 'The Morgue' },
+  { href: '/adoption', label: 'Adoptions' },
+  { href: '/submit',   label: 'Submit' },
+  { href: '/about',    label: 'About' },
 ]
 
 export default function BureauNavbar({ user }: BureauNavbarProps) {
   const pathname = usePathname()
-  const { theme, setTheme, resolvedTheme } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80)
@@ -40,7 +37,6 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
   // Close mobile menu on route change
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
-  const isDark = resolvedTheme === 'dark'
   const initials = user
     ? (user.display_name ?? user.username ?? '?').slice(0, 2).toUpperCase()
     : null
@@ -88,23 +84,6 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
 
           {/* Desktop right actions */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Theme toggle */}
-            {mounted && (
-              <button
-                onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                aria-label="Toggle theme"
-                className="p-2 rounded text-bureau-muted hover:text-bureau-text hover:bg-white/5 transition-all"
-              >
-                <motion.div
-                  key={isDark ? 'moon' : 'sun'}
-                  initial={{ rotate: -30, opacity: 0 }}
-                  animate={{ rotate: 0,   opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {isDark ? <Moon size={16} /> : <Sun size={16} />}
-                </motion.div>
-              </button>
-            )}
 
             {user ? (
               <>
@@ -116,11 +95,27 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
                   <LayoutDashboard size={16} />
                 </Link>
                 <Link
+                  href="/settings"
+                  className="p-2 rounded text-bureau-muted hover:text-bureau-text hover:bg-white/5 transition-all"
+                  aria-label="Settings"
+                >
+                  <Settings size={16} />
+                </Link>
+                <Link
                   href={`/profile/${user.username}`}
                   className="w-8 h-8 rounded-full bg-amber-600/20 border border-amber-600/40
-                             flex items-center justify-center hover:border-amber-500 transition-colors"
+                             flex items-center justify-center hover:border-amber-500 transition-colors overflow-hidden"
                 >
-                  <span className="font-serif text-xs text-amber-500">{initials}</span>
+                  {user.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.avatar_url}
+                      alt={`${user.display_name ?? user.username}'s avatar`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="font-serif text-xs text-amber-500">{initials}</span>
+                  )}
                 </Link>
               </>
             ) : (
@@ -132,6 +127,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
 
           {/* Mobile menu button */}
           <button
+            type="button"
             onClick={() => setMobileOpen((v) => !v)}
             className="md:hidden p-2 rounded text-bureau-muted hover:text-bureau-text transition-colors"
             aria-label="Toggle menu"
@@ -168,6 +164,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
               <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
                 <span className="font-serif italic text-amber-600 text-lg">The Bureau</span>
                 <button
+                  type="button"
                   onClick={() => setMobileOpen(false)}
                   className="p-1 text-bureau-muted hover:text-bureau-text transition-colors"
                   aria-label="Close menu"
@@ -198,17 +195,6 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
 
               {/* Drawer footer */}
               <div className="px-4 py-6 border-t border-white/10 space-y-3">
-                {/* Theme toggle */}
-                {mounted && (
-                  <button
-                    onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 rounded text-sm text-bureau-muted
-                               hover:text-bureau-text hover:bg-white/5 transition-all"
-                  >
-                    {isDark ? <Moon size={16} /> : <Sun size={16} />}
-                    <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-                  </button>
-                )}
 
                 {user ? (
                   <>
@@ -219,6 +205,14 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
                     >
                       <LayoutDashboard size={16} />
                       <span>Dashboard</span>
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="flex items-center gap-3 px-4 py-2.5 rounded text-sm text-bureau-muted
+                                 hover:text-bureau-text hover:bg-white/5 transition-all"
+                    >
+                      <Settings size={16} />
+                      <span>Settings</span>
                     </Link>
                     <Link
                       href={`/profile/${user.username}`}

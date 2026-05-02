@@ -1,29 +1,64 @@
+import Anthropic from '@anthropic-ai/sdk'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import OpenAI from 'openai'
-import type { Project, Autopsy } from '@/lib/types/database'
+import type { Project } from '@/lib/types/database'
 
-type ProjectWithAutopsy = Project & { autopsies: Autopsy | null }
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+// Per-user rate limit: 5 diagnoses per hour (in-memory; swap for Redis in production)
+const LIMIT   = 5
+const WINDOW  = 60 * 60 * 1000 // 1 hour
+const callLog = new Map<string, { count: number; reset: number }>()
 
-const DIAGNOSIS_PROMPT = `You are the Bureau of Unfinished Things' AI Pathologist. Your job is to deliver a thoughtful, compassionate, and honest diagnosis of why a project failed.
-
-You will receive information about an abandoned project. Your diagnosis should be:
-- Insightful and specific (not generic)
-- Compassionate but honest
-- Written like a clinical yet empathetic report
-- 3-5 sentences for the diagnosis
-- 2-3 sentences for the recommendation
-
-Respond ONLY with valid JSON in this format:
-{
-  "diagnosis": "The clinical diagnosis text here...",
-  "recommendation": "The recommendation for a future adopter here...",
-  "confidence": 75
+function checkRateLimit(userId: string): boolean {
+  const now   = Date.now()
+  const entry = callLog.get(userId)
+  if (!entry || now >= entry.reset) {
+    callLog.set(userId, { count: 1, reset: now + WINDOW })
+    return true
+  }
+  if (entry.count >= LIMIT) return false
+  entry.count++
+  return true
 }
 
-The confidence score (0-100) reflects how certain you are based on the evidence provided.`
+const SYSTEM_PROMPT = `You are the Bureau of Unfinished Things' AI Pathologist — a clinical, empathetic expert who performs formal autopsies on abandoned creative and technical projects.
+
+Your role is to deliver an honest, specific, and compassionate post-mortem. You write with the gravitas of a museum curator and the precision of a forensic examiner. Never be generic.
+
+Output your report in EXACTLY this format — no extra text, no markdown, no deviation:
+
+[OFFICIAL_CAUSE]: {A single clinical sentence naming the precise cause of death. E.g. "Death by Scope Paralysis, compounded by co-founder departure and runway depletion."}
+[DIAGNOSIS]: {3–4 sentences of deep, specific diagnosis. Reference the project's actual details. Be insightful about the psychology and circumstances, not just the surface causes.}
+[RECOMMENDATION]: {2–3 sentences addressed directly to a future adopter. What should they know before picking this up? What's salvageable and what needs rebuilding?}
+[DIFFICULTY]: {exactly one of: easy, moderate, hard}
+[DIFFICULTY_REASON]: {One sentence explaining the difficulty rating, specific to this project.}
+[CONFIDENCE]: {An integer from 0–100 reflecting how certain you are given the evidence provided.}`
+
+// Parse the model's delimited output into structured fields
+function parseOutput(text: string) {
+  function extract(key: string, nextKey?: string) {
+    const escaped = key.replace(/[[\]]/g, '\\$&')
+    const next = nextKey?.replace(/[[\]]/g, '\\$&')
+    const pattern = next
+      ? new RegExp(`\\[${escaped}\\]:\\s*([\\s\\S]*?)\\[${next}\\]:`)
+      : new RegExp(`\\[${escaped}\\]:\\s*([\\s\\S]*)$`)
+    return text.match(pattern)?.[1]?.trim() ?? ''
+  }
+
+  const raw_difficulty = extract('DIFFICULTY', 'DIFFICULTY_REASON').toLowerCase()
+  const difficulty = (['easy', 'moderate', 'hard'] as const).find(d => raw_difficulty.includes(d)) ?? 'moderate'
+  const confidence = parseInt(extract('CONFIDENCE')) || 70
+
+  return {
+    official_cause:   extract('OFFICIAL_CAUSE', 'DIAGNOSIS'),
+    diagnosis:        extract('DIAGNOSIS', 'RECOMMENDATION'),
+    recommendation:   extract('RECOMMENDATION', 'DIFFICULTY'),
+    difficulty,
+    difficulty_reason: extract('DIFFICULTY_REASON', 'CONFIDENCE'),
+    confidence,
+  }
+}
 
 export async function POST(
   _request: Request,
@@ -36,67 +71,98 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // Get project details
+  if (!checkRateLimit(user.id)) {
+    const errEvent = JSON.stringify({ type: 'error', message: 'Diagnosis limit reached (5/hour). Please try again later.' })
+    return new Response(`data: ${errEvent}\n\n`, {
+      status: 429,
+      headers: { 'Content-Type': 'text/event-stream' },
+    })
+  }
+
   const { data: project } = await supabase
     .from('projects')
-    .select('*, autopsies(*)')
+    .select('*')
     .eq('id', params.projectId)
-    .single() as unknown as { data: ProjectWithAutopsy | null }
+    .single() as unknown as { data: Project | null }
 
   if (!project) {
     return NextResponse.json({ error: 'Project not found' }, { status: 404 })
   }
 
-  // Build context for GPT
-  const context = `
-Project: ${project.title}
+  const lifespan = project.lifespan_months
+    ? `${project.lifespan_months} month${project.lifespan_months !== 1 ? 's' : ''}`
+    : 'unknown duration'
+
+  const context = `Project title: ${project.title}
 Type: ${project.project_type}
 Description: ${project.description ?? 'Not provided'}
 Started: ${project.started_at ?? 'Unknown'}
 Died: ${project.died_at}
-Lifespan: ${project.lifespan_months ?? 'Unknown'} months
-Causes of Death (as reported by creator): ${project.causes_of_death.join(', ')}
-Ghost Letter: ${project.ghost_letter ?? 'None written'}
-Adoption Type: ${project.adoption_type}
-`
+Lifespan: ${lifespan}
+Causes of death (self-reported): ${project.causes_of_death.join(', ')}
+Ghost letter from creator: ${project.ghost_letter ?? 'None written'}
+Adoption type offered: ${project.adoption_type}${project.adoption_price ? ` at GH₵${project.adoption_price}` : ''}`
 
-  const completion = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    messages: [
-      { role: 'system', content: DIAGNOSIS_PROMPT },
-      { role: 'user', content: context },
-    ],
-    response_format: { type: 'json_object' },
-    temperature: 0.7,
-    max_tokens: 500,
+  const encoder = new TextEncoder()
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (data: object) =>
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+
+      let fullText = ''
+
+      try {
+        const messageStream = anthropic.messages.stream({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: 'user', content: context }],
+        })
+
+        for await (const event of messageStream) {
+          if (
+            event.type === 'content_block_delta' &&
+            event.delta.type === 'text_delta'
+          ) {
+            fullText += event.delta.text
+            send({ type: 'chunk', text: event.delta.text })
+          }
+        }
+
+        // Parse and persist
+        const parsed = parseOutput(fullText)
+
+        const serviceClient = createServiceClient()
+        await serviceClient
+          .from('autopsies')
+          .update({
+            official_cause:           parsed.official_cause  || null,
+            pathologist_diagnosis:    parsed.diagnosis       || null,
+            pathologist_recommendation: parsed.recommendation || null,
+            resurrection_difficulty:  parsed.difficulty,
+            difficulty_reason:        parsed.difficulty_reason || null,
+            confidence_score:         parsed.confidence,
+          })
+          .eq('project_id', params.projectId)
+
+        send({ type: 'done', ...parsed })
+      } catch (err) {
+        send({
+          type: 'error',
+          message: err instanceof Error ? err.message : 'Diagnosis failed',
+        })
+      } finally {
+        controller.close()
+      }
+    },
   })
 
-  const raw = completion.choices[0].message.content
-  if (!raw) {
-    return NextResponse.json({ error: 'No response from AI' }, { status: 500 })
-  }
-
-  let result: { diagnosis: string; recommendation: string; confidence: number }
-  try {
-    result = JSON.parse(raw)
-  } catch {
-    return NextResponse.json({ error: 'Invalid AI response format' }, { status: 500 })
-  }
-
-  // Update autopsy record
-  const serviceClient = createServiceClient()
-  await serviceClient
-    .from('autopsies')
-    .update({
-      pathologist_diagnosis: result.diagnosis,
-      pathologist_recommendation: result.recommendation,
-      confidence_score: result.confidence,
-    })
-    .eq('project_id', params.projectId)
-
-  return NextResponse.json({
-    diagnosis: result.diagnosis,
-    recommendation: result.recommendation,
-    confidence: result.confidence,
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
   })
 }

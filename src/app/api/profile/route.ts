@@ -9,7 +9,7 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { display_name, bio, username } = await request.json()
+  const { display_name, bio, username, avatar_url } = await request.json()
 
   if (username) {
     const { data: existing } = await supabase
@@ -30,6 +30,7 @@ export async function PATCH(request: Request) {
       ...(display_name !== undefined && { display_name }),
       ...(bio !== undefined && { bio }),
       ...(username !== undefined && { username }),
+      ...(avatar_url !== undefined && { avatar_url }),
     })
     .eq('id', user.id)
     .select()

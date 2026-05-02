@@ -4,10 +4,12 @@ import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
 import BureauNavbar from './BureauNavbar'
 import BureauFooter from './BureauFooter'
+import CloudLayer from './CloudLayer'
 
 interface NavUser {
   username?: string | null
   display_name?: string | null
+  avatar_url?: string | null
 }
 
 interface PageWrapperProps {
@@ -37,6 +39,9 @@ export default function PageWrapper({
   return (
     <div className="min-h-screen flex flex-col bg-bureau-void">
       {!noNav && <BureauNavbar user={user} />}
+
+      {/* Atmospheric cloud layer — full page, below all content */}
+      <CloudLayer />
 
       {/* Grain overlay — covers the whole page */}
       <div

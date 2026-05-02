@@ -46,15 +46,6 @@ export async function POST(
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  // Increment community count
-  await serviceClient
-    .from('autopsies')
-    .update({
-      community_diagnosis_count: (autopsy as { id: string } & { community_diagnosis_count?: number }) ? undefined : 0,
-    })
-    .eq('id', autopsy.id)
-
-  // Use raw update
   await supabase.rpc('increment_autopsy_comment_count', { p_autopsy_id: autopsy.id }).maybeSingle()
 
   return NextResponse.json(comment, { status: 201 })

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { cn } from '@/lib/utils/cn'
 
 interface GhostLetterBlockProps {
   text: string
@@ -19,31 +18,40 @@ export default function GhostLetterBlock({
 }: GhostLetterBlockProps) {
   const [displayed, setDisplayed] = useState('')
   const [done, setDone] = useState(false)
-  const [started, setStarted] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-80px' })
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const indexRef = useRef(0)
 
+  // Trigger as soon as any part of the block enters the viewport
+  const inView = useInView(ref, { once: true, margin: '0px' })
+
   useEffect(() => {
-    if (!inView || started) return
-    setStarted(true)
+    if (!inView) return
+
+    // Clear any lingering timer (handles React Strict Mode double-fire)
+    if (timerRef.current) clearInterval(timerRef.current)
     indexRef.current = 0
     setDisplayed('')
     setDone(false)
 
-    const interval = setInterval(() => {
-      const next = indexRef.current + 1
-      if (next > text.length) {
-        clearInterval(interval)
+    timerRef.current = setInterval(() => {
+      indexRef.current += 1
+      if (indexRef.current > text.length) {
+        clearInterval(timerRef.current!)
+        timerRef.current = null
         setDone(true)
         return
       }
-      indexRef.current = next
-      setDisplayed(text.slice(0, next))
+      setDisplayed(text.slice(0, indexRef.current))
     }, speed)
 
-    return () => clearInterval(interval)
-  }, [inView, text, speed, started])
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
+    }
+  }, [inView, text, speed])
 
   return (
     <motion.div
@@ -68,17 +76,15 @@ export default function GhostLetterBlock({
       {/* Typewriter text */}
       <p className="ghost-letter-text">
         {displayed}
-        {!done && (
-          <span className="ghost-letter-cursor" />
-        )}
+        {!done && <span className="ghost-letter-cursor" />}
       </p>
 
-      {/* Attribution */}
+      {/* Attribution — fades in once typing completes */}
       {author && done && (
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.5 }}
           className="font-sans text-xs mt-5 pt-4 text-bureau-dim border-t border-amber-600/15"
         >
           — {author}

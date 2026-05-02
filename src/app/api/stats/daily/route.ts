@@ -1,8 +1,8 @@
-import { createServiceClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
-  const supabase = createServiceClient()
+  const supabase = createClient()
 
   // Get today's stats
   const today = new Date().toISOString().split('T')[0]

@@ -3,17 +3,15 @@ import {
   ArrowRight,
   BookOpen,
   Boxes,
-  FolderOpen,
-  Globe2,
   HeartHandshake,
-  History,
-  Lightbulb,
   ScrollText,
   Sparkles,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import type { ProjectWithProfile } from '@/lib/types/database'
 import PageWrapper from '@/components/bureau/PageWrapper'
+import HeroSection, { type HeroCase } from '@/components/bureau/HeroSection'
+import StatsTicker from '@/components/bureau/StatsTicker'
 
 async function getFeaturedProjects() {
   const supabase = createClient()
@@ -68,10 +66,6 @@ async function getCurrentUser() {
   return profile
 }
 
-function archivalNumber(value?: number | null, fallback = '0') {
-  if (typeof value !== 'number') return fallback
-  return value.toLocaleString()
-}
 
 function AcquisitionCard({
   project,
@@ -95,11 +89,7 @@ function AcquisitionCard({
         />
         <div
           aria-hidden="true"
-          className="absolute inset-0 opacity-25 mix-blend-overlay transition-transform duration-700 group-hover:scale-105"
-          style={{
-            backgroundImage:
-              'linear-gradient(120deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 16px), radial-gradient(circle at 70% 20%, rgba(255,255,255,0.12), transparent 22%)',
-          }}
+          className="absolute inset-0 opacity-25 mix-blend-overlay transition-transform duration-700 group-hover:scale-105 bg-[linear-gradient(120deg,_rgba(255,255,255,0.08)_0_1px,_transparent_1px_16px),radial-gradient(circle_at_70%_20%,_rgba(255,255,255,0.12),_transparent_22%)]"
         />
 
         <div className="relative z-10 mt-auto max-w-2xl">
@@ -174,67 +164,30 @@ export default async function HomePage() {
   const primaryProject = projects[0]
   const secondaryProjects = projects.slice(1, 4)
 
+  const heroCases: HeroCase[] = projects.slice(0, 5).map(p => ({
+    id:               p.id,
+    title:            p.title,
+    causes_of_death:  p.causes_of_death ?? [],
+    project_type:     p.project_type ?? '',
+    is_adopted:       p.is_adopted ?? false,
+    profiles:         p.profiles ?? null,
+  }))
+
   return (
     <PageWrapper user={user}>
-      <section className="relative mx-auto flex min-h-[720px] max-w-[1280px] flex-col items-center justify-center px-6 py-24 text-center md:px-12">
-        <div
-          aria-hidden="true"
-          className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-bureau-gold/30 to-transparent"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-bureau-gold/5 blur-3xl"
-        />
+      <HeroSection
+        totalProjects={stats?.allTime?.totalProjects ?? 0}
+        totalAdoptions={stats?.allTime?.totalAdoptions ?? 0}
+        cases={heroCases}
+      />
 
-        <div className="relative z-10 flex max-w-3xl flex-col items-center gap-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-bureau-gold/30 bg-bureau-gold/5 px-3 py-1 font-sans text-[0.68rem] font-bold uppercase tracking-[0.18em] text-bureau-gold">
-            <span className="h-1.5 w-1.5 rounded-full bg-bureau-gold" />
-            Now accepting partial manuscripts
-          </div>
-
-          <h1 className="font-serif text-5xl font-light leading-[1.05] text-bureau-text md:text-7xl">
-            Resurrect the
-            <br />
-            <span className="italic text-bureau-gold">Almost Brilliant</span>
-          </h1>
-
-          <p className="max-w-2xl font-sans text-base leading-8 text-bureau-muted md:text-lg">
-            An archival sanctuary for the incomplete, the abandoned, and the fragments of genius
-            lost to time. We preserve the spark before the fade.
-          </p>
-
-          <div className="mt-2 flex flex-wrap justify-center gap-4">
-            <Link href="/morgue" className="btn-bureau px-8 py-4">
-              Enter the Archive
-            </Link>
-            <Link href="/about" className="btn-bureau-ghost px-8 py-4">
-              View Manifest
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="w-full overflow-hidden border-y border-white/5 bg-bureau-surface/40 py-4">
-        <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-5 px-6 font-sans text-[0.68rem] font-bold uppercase tracking-[0.16em] text-bureau-muted sm:grid-cols-2 lg:grid-cols-4 md:px-12">
-          {[
-            {
-              icon: FolderOpen,
-              label: `${archivalNumber(stats?.allTime?.totalProjects, '0')} Fragments Archived`,
-            },
-            { icon: History, label: 'Est. 1924' },
-            {
-              icon: Lightbulb,
-              label: `${archivalNumber(stats?.allTime?.totalAdoptions, '0')} Ideas Adopted`,
-            },
-            { icon: Globe2, label: 'Global Ledger' },
-          ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center justify-center gap-2 lg:justify-start">
-              <Icon size={16} className="text-bureau-gold" aria-hidden="true" />
-              {label}
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatsTicker
+        totalProjects={stats?.allTime?.totalProjects ?? 0}
+        totalAdoptions={stats?.allTime?.totalAdoptions ?? 0}
+        totalResurrections={stats?.allTime?.totalResurrections ?? 0}
+        todayProjects={stats?.today?.newProjects ?? 0}
+        topCause={stats?.topCause?.name ?? null}
+      />
 
       <section className="mx-auto max-w-[1280px] px-6 py-20 md:px-12">
         <div className="mb-8 flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end md:justify-between">

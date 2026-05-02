@@ -53,8 +53,17 @@ export default async function DashboardPage() {
             <div className="flex items-start gap-5">
               {/* Avatar */}
               <div className="w-16 h-16 rounded-full bg-bureau-gold/15 border border-bureau-gold/30
-                              flex items-center justify-center flex-shrink-0">
-                <span className="font-serif text-xl text-bureau-gold">{initials}</span>
+                              flex items-center justify-center flex-shrink-0 overflow-hidden flex-shrink-0">
+                {profile?.avatar_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.avatar_url}
+                    alt={`${profile.display_name ?? profile.username}'s avatar`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-serif text-xl text-bureau-gold">{initials}</span>
+                )}
               </div>
               <div>
                 <h1 className="font-serif text-3xl text-bureau-text leading-tight">

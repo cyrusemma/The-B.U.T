@@ -126,8 +126,11 @@ export interface Database {
         Row: {
           id: string
           project_id: string
+          official_cause: string | null
           pathologist_diagnosis: string | null
           pathologist_recommendation: string | null
+          resurrection_difficulty: 'easy' | 'moderate' | 'hard' | null
+          difficulty_reason: string | null
           confidence_score: number | null
           community_diagnosis_count: number
           created_at: string
@@ -136,14 +139,20 @@ export interface Database {
         Insert: {
           id?: string
           project_id: string
+          official_cause?: string | null
           pathologist_diagnosis?: string | null
           pathologist_recommendation?: string | null
+          resurrection_difficulty?: 'easy' | 'moderate' | 'hard' | null
+          difficulty_reason?: string | null
           confidence_score?: number | null
           community_diagnosis_count?: number
         }
         Update: {
+          official_cause?: string | null
           pathologist_diagnosis?: string | null
           pathologist_recommendation?: string | null
+          resurrection_difficulty?: 'easy' | 'moderate' | 'hard' | null
+          difficulty_reason?: string | null
           confidence_score?: number | null
           community_diagnosis_count?: number
         }
@@ -208,6 +217,7 @@ export interface Database {
           status?: string
           resurrected_at?: string | null
           resurrection_url?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -233,6 +243,7 @@ export interface Database {
           id: string
           adoption_id: string
           stripe_payment_intent_id: string | null
+          paystack_reference: string | null
           amount_cents: number
           currency: string
           status: string
@@ -240,12 +251,14 @@ export interface Database {
           bureau_receives_cents: number | null
           payment_method: string | null
           created_at: string
+          updated_at: string | null
           completed_at: string | null
         }
         Insert: {
           id?: string
           adoption_id: string
           stripe_payment_intent_id?: string | null
+          paystack_reference?: string | null
           amount_cents: number
           currency?: string
           status?: string
@@ -255,9 +268,44 @@ export interface Database {
         }
         Update: {
           stripe_payment_intent_id?: string | null
+          paystack_reference?: string | null
           status?: string
           completed_at?: string | null
+          updated_at?: string | null
           payment_method?: string | null
+        }
+        Relationships: []
+      }
+      payment_settings: {
+        Row: {
+          id: string
+          user_id: string
+          payment_provider: string
+          account_number: string
+          account_name: string
+          bank_code: string | null
+          paystack_recipient_code: string | null
+          is_verified: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          payment_provider?: string
+          account_number: string
+          account_name: string
+          bank_code?: string | null
+          paystack_recipient_code?: string | null
+          is_verified?: boolean
+        }
+        Update: {
+          account_number?: string
+          account_name?: string
+          bank_code?: string | null
+          paystack_recipient_code?: string | null
+          is_verified?: boolean
+          updated_at?: string
         }
         Relationships: []
       }

@@ -4,9 +4,7 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const rawNext = searchParams.get('next') ?? '/dashboard'
-  // Only allow safe relative paths — block open-redirect via //evil.com or external URLs
-  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard'
+  const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
     const supabase = createClient()
@@ -37,5 +35,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth_failed`)
+  return NextResponse.redirect(`${origin}/login?error=verification_failed`)
 }

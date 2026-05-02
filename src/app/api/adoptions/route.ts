@@ -1,10 +1,34 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import {
+  initializePaystackPayment,
+  ghcToPesewas,
+} from '@/lib/paystack'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-})
+// Simple in-memory rate limiter for adoption attempts (key: userId)
+const adoptionAttempts = new Map<string, { count: number; reset: number }>()
+const RATE_LIMIT_WINDOW = 60 * 60 * 1000 // 1 hour
+const MAX_ATTEMPTS = 10 // max 10 adoption attempts per hour
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now()
+  const userLimit = adoptionAttempts.get(userId)
+
+  // Reset if window expired
+  if (!userLimit || userLimit.reset < now) {
+    adoptionAttempts.set(userId, { count: 1, reset: now + RATE_LIMIT_WINDOW })
+    return true
+  }
+
+  // Check if limit exceeded
+  if (userLimit.count >= MAX_ATTEMPTS) {
+    return false
+  }
+
+  // Increment counter
+  userLimit.count++
+  return true
+}
 
 export async function POST(request: Request) {
   const supabase = createClient()
@@ -12,6 +36,14 @@ export async function POST(request: Request) {
 
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 🔒 SECURITY: Rate limit adoption attempts
+  if (!checkRateLimit(user.id)) {
+    return NextResponse.json(
+      { error: 'Too many adoption attempts. Please try again later.' },
+      { status: 429 }
+    )
   }
 
   const { projectId } = await request.json()
@@ -34,6 +66,18 @@ export async function POST(request: Request) {
   // Prevent self-adoption
   if (user.id === project.creator_id) {
     return NextResponse.json({ error: 'You cannot adopt your own project' }, { status: 400 })
+  }
+
+  // Get adopter email for Paystack
+  const { data: adopterProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+
+  const { data: { user: authUser } } = await supabase.auth.getUser()
+  if (!authUser?.email) {
+    return NextResponse.json({ error: 'User email not found' }, { status: 400 })
   }
 
   const serviceClient = createServiceClient()
@@ -59,46 +103,52 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create adoption' }, { status: 500 })
   }
 
-  // If paid, create Stripe session
+  // If paid, create Paystack session
   if (isPaid) {
-    const amountCents = Math.round(pricePaid * 100)
-    const bureauCents = Math.round(amountCents * 0.1)
-    const creatorCents = amountCents - bureauCents
+    try {
+      const amountPesewas = ghcToPesewas(pricePaid)
+      const bureauPesewas = Math.round(amountPesewas * 0.1)
+      const creatorPesewas = amountPesewas - bureauPesewas
 
-    // Create payment record
-    await serviceClient.from('payments').insert({
-      adoption_id: adoption.id,
-      amount_cents: amountCents,
-      creator_receives_cents: creatorCents,
-      bureau_receives_cents: bureauCents,
-      status: 'pending',
-    })
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: `Resurrection Rights: ${project.title}`,
-              description: `Adopt and revive this project from the Bureau of Unfinished Things`,
-            },
-            unit_amount: amountCents,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/adoption/${adoption.id}?payment=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/morgue/${projectId}?payment=cancelled`,
-      metadata: {
+      // Create payment record
+      const { error: paymentError } = await serviceClient.from('payments').insert({
         adoption_id: adoption.id,
-        project_id: projectId,
-      },
-    })
+        amount_cents: amountPesewas,
+        creator_receives_cents: creatorPesewas,
+        bureau_receives_cents: bureauPesewas,
+        status: 'pending',
+        currency: 'GHS',
+        payment_method: 'paystack',
+      })
 
-    return NextResponse.json({ id: adoption.id, checkoutUrl: session.url }, { status: 201 })
+      if (paymentError) {
+        throw paymentError
+      }
+
+      // Initialize Paystack payment
+      const paystackResponse = await initializePaystackPayment({
+        email: authUser.email,
+        amount: amountPesewas,
+        reference: `adoption_${adoption.id}_${Date.now()}`,
+        metadata: {
+          adoption_id: adoption.id,
+          project_id: projectId,
+          project_title: project.title,
+        },
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/adoptions/${adoption.id}/paystack-callback`,
+      })
+
+      return NextResponse.json(
+        { id: adoption.id, checkoutUrl: paystackResponse.authorization_url },
+        { status: 201 }
+      )
+    } catch (error) {
+      console.error('Paystack initialization error:', error)
+      return NextResponse.json(
+        { error: 'Failed to initialize payment. Please try again.' },
+        { status: 500 }
+      )
+    }
   }
 
   return NextResponse.json({ id: adoption.id }, { status: 201 })

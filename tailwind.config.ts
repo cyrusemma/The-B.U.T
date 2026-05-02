@@ -69,13 +69,6 @@ const config: Config = {
           green:    '#10B981',
           'green-dim': 'rgba(16,185,129,0.15)',
           blue:     '#bcc7de',
-          // Light mode surfaces
-          parchment: '#F5F0E8',
-          warm:      '#FDFAF5',
-          paper:     '#FFFFFF',
-          ink:       '#1C1917',
-          'ink-muted': '#78716C',
-          'ink-dim':   '#A8A29E',
           // Ultra-dark
           abyss:    '#04060A',
           // Glass surface tokens (dark-mode values; light mode overridden via CSS)

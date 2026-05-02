@@ -39,7 +39,29 @@ function FilterSelect({
 
 function TombstoneSkeleton() {
   return (
-    <div className="skeleton rounded-lg h-64" />
+    <div className="rounded-lg border border-white/5 bg-bureau-card overflow-hidden h-[320px] flex flex-col">
+      {/* Header skeleton */}
+      <div className="tombstone-header space-y-2">
+        <div className="skeleton w-10 h-12 mx-auto rounded" />
+        <div className="skeleton h-4 w-3/4 mx-auto rounded" />
+        <div className="skeleton h-3 w-1/3 mx-auto rounded" />
+      </div>
+      {/* Body skeleton */}
+      <div className="px-5 py-4 flex-1 space-y-2">
+        <div className="skeleton h-3 w-full rounded" />
+        <div className="skeleton h-3 w-5/6 rounded" />
+        <div className="skeleton h-3 w-4/6 rounded" />
+        <div className="flex gap-2 mt-4">
+          <div className="skeleton h-5 w-20 rounded" />
+          <div className="skeleton h-5 w-16 rounded" />
+        </div>
+      </div>
+      {/* Footer skeleton */}
+      <div className="tombstone-footer">
+        <div className="skeleton h-3 w-20 rounded" />
+        <div className="skeleton h-5 w-12 rounded" />
+      </div>
+    </div>
   )
 }
 
@@ -91,23 +113,35 @@ export default function MorguePage() {
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-12">
 
         {/* Header */}
-        <div className="mb-10">
-          <p className="font-sans text-[11px] uppercase tracking-widest text-bureau-gold mb-2">
-            The Archive
+        <div className="mb-10 pb-8 border-b border-white/5">
+          <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-bureau-gold mb-3">
+            The Archive · Est. 1924
           </p>
-          <div className="flex items-center justify-between gap-4 mb-2">
-            <h1 className="font-serif text-4xl md:text-5xl text-bureau-text">The Morgue</h1>
-            <Link
-              href="/morgue/archive"
-              className="text-xs font-sans uppercase tracking-wider text-bureau-gold hover:text-amber-400
-                       transition-colors px-3 py-1 border border-bureau-gold/30 rounded hover:border-amber-400/50"
-            >
-              Historical Archive →
-            </Link>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div>
+              <h1 className="font-serif text-5xl md:text-6xl text-bureau-text tracking-tight">
+                The Morgue
+              </h1>
+              <p className="font-sans text-sm text-bureau-dim mt-2">
+                {total > 0
+                  ? <><span className="text-bureau-gold font-medium">{total.toLocaleString()}</span> projects at rest, awaiting resurrection.</>
+                  : 'Awaiting the departed.'}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0 mt-1">
+              <Link
+                href="/morgue/archive"
+                className="text-[0.68rem] font-sans font-bold uppercase tracking-wider text-bureau-dim
+                           hover:text-bureau-gold transition-colors px-3 py-2 border border-white/10
+                           rounded hover:border-bureau-gold/30"
+              >
+                Archive →
+              </Link>
+              <Link href="/submit" className="btn-bureau px-5 py-2 text-xs">
+                + Submit
+              </Link>
+            </div>
           </div>
-          <p className="font-sans text-sm text-bureau-dim">
-            {total > 0 ? `${total.toLocaleString()} projects at rest.` : 'Awaiting the departed.'}
-          </p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -182,11 +216,6 @@ export default function MorguePage() {
               </div>
             )}
 
-            <div className="section-divider" />
-
-            <Link href="/submit" className="btn-bureau w-full text-center block">
-              Submit a Corpse
-            </Link>
           </aside>
 
           {/* ── Main grid ────────────────────────────────────────────────── */}

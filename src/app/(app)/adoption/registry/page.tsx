@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import PageWrapper from '@/components/bureau/PageWrapper'
-import { CheckCircle2, TrendingUp, Users, Zap, Search } from 'lucide-react'
+import { CheckCircle2, TrendingUp, Users, Zap, Search, ExternalLink } from 'lucide-react'
 
 interface AdoptionStats {
   totalAdoptions: number
@@ -96,7 +97,7 @@ export default function AdoptionRegistryPage() {
         activeAdoptions,
         resurrectedProjects,
         pendingTransfers,
-        recentAdoptions: recentFiltered.slice(0, 20),
+        recentAdoptions: recentFiltered.slice(0, 50),
       })
     } catch (error) {
       console.error('Error fetching adoption data:', error)
@@ -108,17 +109,11 @@ export default function AdoptionRegistryPage() {
   if (loading) {
     return (
       <PageWrapper>
-        <div className="min-h-screen px-4 md:px-6 py-12">
-          <div className="max-w-7xl mx-auto">
-            <div className="animate-pulse space-y-4">
-              <div className="h-20 bg-bureau-elevated rounded" />
-              <div className="grid md:grid-cols-4 gap-4">
-                {Array(4)
-                  .fill(null)
-                  .map((_, i) => (
-                    <div key={i} className="h-32 bg-bureau-elevated rounded" />
-                  ))}
-              </div>
+        <div className="min-h-screen bg-bureau-void">
+          <div className="max-w-7xl mx-auto px-6 py-24">
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="w-8 h-8 border-2 border-amber-600/30 border-t-amber-600 rounded-full animate-spin" />
+              <p className="text-sm text-amber-600/70 font-serif">Retrieving adoption records…</p>
             </div>
           </div>
         </div>
@@ -129,9 +124,9 @@ export default function AdoptionRegistryPage() {
   if (!stats) {
     return (
       <PageWrapper>
-        <div className="min-h-screen px-4 md:px-6 py-12">
-          <div className="max-w-7xl mx-auto text-center">
-            <p className="font-serif text-2xl text-bureau-muted">Unable to load adoption registry</p>
+        <div className="min-h-screen bg-bureau-void">
+          <div className="max-w-7xl mx-auto px-6 py-24 text-center">
+            <p className="font-serif text-2xl text-bureau-dim">Unable to load adoption registry</p>
           </div>
         </div>
       </PageWrapper>
@@ -140,27 +135,36 @@ export default function AdoptionRegistryPage() {
 
   return (
     <PageWrapper>
-      <div className="min-h-screen px-4 md:px-6 py-12">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen bg-bureau-void text-white">
+        {/* Ambient Background */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-600/10 rounded-full mix-blend-screen filter blur-[120px] opacity-30" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-orange-600/5 rounded-full mix-blend-screen filter blur-[150px] opacity-20" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 py-24">
           {/* Header */}
-          <div className="mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-600/20 bg-amber-600/5 mb-4">
-              <CheckCircle2 className="w-3 h-3 text-bureau-gold" />
-              <span className="font-sans text-xs uppercase tracking-widest text-bureau-gold">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-16"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-600/20 bg-amber-600/10 mb-6">
+              <CheckCircle2 className="w-4 h-4 text-amber-500" />
+              <span className="font-sans text-xs uppercase tracking-widest text-amber-400">
                 Adoption Registry
               </span>
             </div>
-            <h1 className="font-serif text-5xl md:text-6xl text-bureau-text mb-3">
+            <h1 className="font-serif text-5xl md:text-6xl text-white mb-4 font-light">
               The Adoption Registry
             </h1>
-            <p className="font-sans text-bureau-muted text-lg max-w-2xl">
-              A living record of projects brought back to life. Track resurrections, celebrate
-              second chances, and witness the circulation of creative work through the Bureau.
+            <p className="font-sans text-bureau-muted text-lg max-w-2xl leading-relaxed">
+              A living record of projects brought back to life. Track resurrections, celebrate second chances, and witness the circulation of creative work through the Bureau.
             </p>
-          </div>
+          </motion.div>
 
           {/* Stats Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[
               {
                 icon: CheckCircle2,
@@ -186,103 +190,111 @@ export default function AdoptionRegistryPage() {
                 value: stats.pendingTransfers,
                 color: 'purple',
               },
-            ].map(({ icon: Icon, label, value, color }) => {
+            ].map(({ icon: Icon, label, value, color }, idx) => {
               const colorMap = {
-                amber: 'text-amber-600 bg-amber-600/10',
-                green: 'text-green-600 bg-green-600/10',
-                blue: 'text-blue-600 bg-blue-600/10',
-                purple: 'text-purple-600 bg-purple-600/10',
+                amber: { icon: 'text-amber-500', bg: 'bg-amber-500/10', border: 'border-amber-500/30' },
+                green: { icon: 'text-emerald-500', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' },
+                blue: { icon: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/30' },
+                purple: { icon: 'text-purple-500', bg: 'bg-purple-500/10', border: 'border-purple-500/30' },
               }
+              const style = colorMap[color as keyof typeof colorMap]
               return (
-                <div
+                <motion.div
                   key={label}
-                  className="glass grain rounded-lg p-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="glass-morphism rounded-2xl p-8 border border-white/10"
                 >
-                  <div className={`w-10 h-10 rounded-lg ${colorMap[color as keyof typeof colorMap]} flex items-center justify-center mb-3`}>
-                    <Icon className="w-5 h-5" />
+                  <div className={`w-12 h-12 rounded-xl ${style.bg} border ${style.border} flex items-center justify-center mb-4`}>
+                    <Icon className={`w-6 h-6 ${style.icon}`} />
                   </div>
-                  <div className="font-serif text-3xl text-bureau-text mb-1">{value}</div>
+                  <div className="font-serif text-4xl text-white mb-2 font-light">{value}</div>
                   <div className="font-sans text-xs uppercase tracking-widest text-bureau-dim">
                     {label}
                   </div>
-                </div>
+                </motion.div>
               )
             })}
           </div>
 
           {/* Filters and Search */}
           <div className="mb-8 space-y-4">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {['all', 'active', 'resurrected'].map((f) => (
                 <button
                   key={f}
+                  type="button"
                   onClick={() => {
                     setFilter(f as 'all' | 'active' | 'resurrected')
                     setSearch('')
                   }}
-                  className={`px-4 py-2 rounded text-sm font-sans font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-lg text-sm font-sans font-semibold transition-all ${
                     filter === f
-                      ? 'bg-bureau-gold text-bureau-void'
-                      : 'bg-bureau-card text-bureau-muted hover:bg-bureau-elevated'
+                      ? 'bg-gradient-to-r from-amber-600 to-amber-500 text-black shadow-lg shadow-amber-600/20'
+                      : 'glass-morphism border border-white/10 text-bureau-muted hover:border-white/20'
                   }`}
                 >
-                  {f === 'all' ? 'All Adoptions' : f === 'active' ? 'Active Projects' : 'Resurrected'}
+                  {f === 'all' ? 'All Adoptions' : f === 'active' ? 'Active Projects' : '✓ Resurrected'}
                 </button>
               ))}
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-bureau-dim" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-bureau-dim" />
               <input
                 type="text"
-                placeholder="Search by project, creator, or adopter..."
+                placeholder="Search by project, creator, or adopter…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="input-bureau w-full pl-10 pr-4 py-2.5 text-sm"
+                className="w-full pl-12 pr-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-bureau-dim focus:outline-none focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/50 transition-colors"
               />
             </div>
           </div>
 
-          {/* Adoptions Table */}
-          <div className="glass grain rounded-lg overflow-hidden">
+          {/* Adoptions List */}
+          <div className="glass-morphism rounded-2xl border border-white/10 overflow-hidden">
             {stats.recentAdoptions.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="font-serif text-lg text-bureau-dim mb-2">No adoptions found</p>
+              <div className="text-center py-16">
+                <p className="font-serif text-xl text-bureau-dim mb-2">No adoptions found</p>
                 <p className="font-sans text-sm text-bureau-dim">
-                  {search ? 'Try adjusting your search' : 'Be the first to adopt a project'}
+                  {search ? 'Try adjusting your search' : 'The archive awaits its first adopter'}
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="border-b border-white/10">
+                  <thead className="border-b border-white/10 bg-white/5">
                     <tr className="text-left">
-                      <th className="px-6 py-3 font-sans text-xs uppercase tracking-widest text-bureau-dim">
+                      <th className="px-6 py-4 font-sans text-xs uppercase tracking-widest text-bureau-dim">
                         Project
                       </th>
-                      <th className="px-6 py-3 font-sans text-xs uppercase tracking-widest text-bureau-dim">
+                      <th className="px-6 py-4 font-sans text-xs uppercase tracking-widest text-bureau-dim">
                         Creator
                       </th>
-                      <th className="px-6 py-3 font-sans text-xs uppercase tracking-widest text-bureau-dim">
+                      <th className="px-6 py-4 font-sans text-xs uppercase tracking-widest text-bureau-dim">
                         Adopter
                       </th>
-                      <th className="px-6 py-3 font-sans text-xs uppercase tracking-widest text-bureau-dim">
+                      <th className="px-6 py-4 font-sans text-xs uppercase tracking-widest text-bureau-dim">
                         Status
                       </th>
-                      <th className="px-6 py-3 font-sans text-xs uppercase tracking-widest text-bureau-dim">
+                      <th className="px-6 py-4 font-sans text-xs uppercase tracking-widest text-bureau-dim">
                         Date
                       </th>
-                      <th className="px-6 py-3 font-sans text-xs uppercase tracking-widest text-bureau-dim" />
+                      <th className="px-6 py-4 font-sans text-xs uppercase tracking-widest text-bureau-dim" />
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/10">
-                    {stats.recentAdoptions.map((adoption) => (
-                      <tr
+                    {stats.recentAdoptions.map((adoption, idx) => (
+                      <motion.tr
                         key={adoption.id}
-                        className="hover:bg-white/[0.03] transition-colors"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="hover:bg-white/[0.02] transition-colors"
                       >
                         <td className="px-6 py-4">
-                          <div className="font-serif text-sm text-bureau-text">
+                          <div className="font-serif text-sm text-white font-medium">
                             {adoption.projectTitle}
                           </div>
                         </td>
@@ -299,16 +311,16 @@ export default function AdoptionRegistryPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             {adoption.resurrected ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-sans
-                                           bg-green-600/20 border border-green-600/30 text-green-400">
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans font-semibold
+                                           bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                                 <CheckCircle2 className="w-3 h-3" />
                                 Resurrected
                               </span>
                             ) : (
-                              <span className={`px-2 py-1 rounded text-xs font-sans font-semibold ${
+                              <span className={`px-3 py-1.5 rounded-full text-xs font-sans font-semibold ${
                                 adoption.status === 'active'
-                                  ? 'bg-blue-600/20 border border-blue-600/30 text-blue-400'
-                                  : 'bg-amber-600/20 border border-amber-600/30 text-amber-400'
+                                  ? 'bg-blue-500/10 border border-blue-500/30 text-blue-400'
+                                  : 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
                               }`}>
                                 {adoption.status === 'active' ? 'In Progress' : 'Pending'}
                               </span>
@@ -326,13 +338,14 @@ export default function AdoptionRegistryPage() {
                         </td>
                         <td className="px-6 py-4">
                           <Link
-                            href={`/morgue/${adoption.project_id}`}
-                            className="text-bureau-gold hover:text-amber-500 font-sans text-xs transition-colors"
+                            href={`/adoption/${adoption.id}`}
+                            className="inline-flex items-center gap-1.5 text-amber-500 hover:text-amber-400 font-sans text-xs transition-colors"
                           >
-                            View →
+                            View
+                            <ExternalLink className="w-3 h-3" />
                           </Link>
                         </td>
-                      </tr>
+                      </motion.tr>
                     ))}
                   </tbody>
                 </table>

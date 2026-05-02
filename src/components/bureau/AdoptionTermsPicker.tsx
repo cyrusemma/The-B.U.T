@@ -81,13 +81,13 @@ export default function AdoptionTermsPicker({
         >
           <label
             htmlFor="adoption-price"
-            className="block font-sans text-[10px] uppercase tracking-widest mb-2 text-bureau-muted"
+            className="block font-sans text-[10px] uppercase tracking-widest mb-2 text-slate-400"
           >
-            Price (USD)
+            Price (Ghana Cedis - GHc)
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-sans text-sm text-bureau-dim">
-              $
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-sans text-sm text-slate-500">
+              GH₵
             </span>
             <input
               id="adoption-price"
@@ -96,12 +96,13 @@ export default function AdoptionTermsPicker({
               onChange={(e) => onPriceChange(e.target.value)}
               placeholder="0"
               min="1"
-              step="1"
-              className="input-bureau pl-8"
+              step="0.01"
+              className="w-full pl-12 px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/50 transition-colors font-sans"
             />
           </div>
-          <p className="font-sans text-[10px] mt-1.5 text-bureau-dim">
-            Bureau takes 10%. You receive 90%.
+          <p className="font-sans text-[10px] mt-2 text-slate-400 space-y-1">
+            <span className="block">• Bureau takes 10% (creator support)</span>
+            <span className="block">• You receive 90% of the amount</span>
           </p>
         </motion.div>
       )}

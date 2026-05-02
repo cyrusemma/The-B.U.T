@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Newsreader, Manrope } from 'next/font/google'
-import { ThemeProvider } from 'next-themes'
 import './globals.css'
 import { CursorGlow } from '@/components/common/CursorGlow'
 
@@ -40,19 +39,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${manrope.variable}`}
-      suppressHydrationWarning
+      className={`${newsreader.variable} ${manrope.variable} dark`}
     >
       <body className="antialiased bureau-scroll">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange={false}
-        >
-          <CursorGlow />
-          {children}
-        </ThemeProvider>
+        <CursorGlow />
+        {children}
       </body>
     </html>
   )

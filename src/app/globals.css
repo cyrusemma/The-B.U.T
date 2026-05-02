@@ -61,47 +61,6 @@
     --font-newsreader: 'Newsreader', Georgia, serif;
     --font-manrope:    'Manrope', system-ui, sans-serif;
   }
-
-  /* ─── Light Mode overrides ──────────────────────────────────────────────── */
-  .light {
-    --background:   38 33% 94%;
-    --foreground:   20 14% 11%;
-    --card:         0 0% 100%;
-    --card-foreground: 20 14% 11%;
-    --popover:      0 0% 100%;
-    --popover-foreground: 20 14% 11%;
-    --primary:      33 80% 45%;
-    --primary-foreground: 0 0% 100%;
-    --secondary:    33 20% 90%;
-    --secondary-foreground: 20 14% 11%;
-    --muted:        33 20% 90%;
-    --muted-foreground: 20 10% 46%;
-    --accent:       33 60% 90%;
-    --accent-foreground: 33 80% 35%;
-    --destructive:  0 62% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --border:       33 25% 85%;
-    --input:        33 25% 90%;
-    --ring:         33 80% 45%;
-
-    --b-void:         #F5F0E8;
-    --b-surface:      #FDFAF5;
-    --b-card:         #FFFFFF;
-    --b-elevated:     #FBF7EF;
-    --b-text:         #1C1917;
-    --b-muted:        #78716C;
-    --b-dim:          #A8A29E;
-    --b-gold:         #B45309;
-    --b-amber:        #92400E;
-    --b-green:        #059669;
-    --b-blue:         #3c475a;
-    --b-abyss:        #EDE8DF;
-
-    --b-glass-bg:     rgba(0, 0, 0, 0.02);
-    --b-glass-border: rgba(0, 0, 0, 0.08);
-    --b-glass-edge:   rgba(0, 0, 0, 0.12);
-    --b-cursor-color: rgba(180, 83, 9, 0.10);
-  }
 }
 
 /* ─── Base styles ─────────────────────────────────────────────────────────── */
@@ -169,6 +128,12 @@
   @keyframes cursor-blink {
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
+  }
+
+  /* 4b. Stats marquee scroll */
+  @keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
   }
 
   /* 5. Tombstone rise */
@@ -265,6 +230,17 @@
     box-shadow:
       inset 0 1px 0 var(--b-glass-edge),
       inset 1px 0 0 var(--b-glass-edge);
+  }
+
+  /* ── Glass morphism — modern dark mode variant ────────────────────────────── */
+  .glass-morphism {
+    background: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.20),
+      inset 1px 0 0 rgba(255, 255, 255, 0.20);
   }
 
   /* ── Grain / noise texture overlay ──────────────────────────────────────── */
@@ -839,4 +815,181 @@
 /* ─── Page transition wrapper ────────────────────────────────────────────── */
 .page-transition-enter {
   animation: page-enter 0.35s ease-out forwards;
+}
+
+/* ─── Hero section — cinematic opening ───────────────────────────────────── */
+
+/* Cloud drift keyframes */
+@keyframes hero-cloud-a {
+  0%   { transform: translateX(-120%) translateY(0px); }
+  100% { transform: translateX(120%)  translateY(0px); }
+}
+@keyframes hero-cloud-b {
+  0%   { transform: translateX(-100%) translateY(0px); }
+  100% { transform: translateX(125%)  translateY(14px); }
+}
+@keyframes hero-cloud-c {
+  0%   { transform: translateX(-80%)  translateY(0px); }
+  100% { transform: translateX(115%)  translateY(-10px); }
+}
+
+/* Headline pulse */
+@keyframes hero-headline-pulse {
+  0%, 100% { text-shadow: 0 0 24px rgba(217, 119, 6, 0.35); }
+  50%       { text-shadow: 0 0 55px rgba(217, 119, 6, 0.65), 0 0 100px rgba(217, 119, 6, 0.20); }
+}
+
+/* Performance: promote cloud elements to their own GPU layer */
+.hero-cloud,
+.page-cloud {
+  will-change: transform;
+}
+
+/* Cloud layer base */
+.hero-cloud {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.hero-cloud-a {
+  width: 720px;
+  height: 210px;
+  top: 18%;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(255, 245, 215, 0.055) 0%, transparent 70%);
+  filter: blur(55px);
+  animation: hero-cloud-a 52s linear infinite;
+}
+.hero-cloud-b {
+  width: 500px;
+  height: 155px;
+  top: 42%;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(210, 190, 160, 0.045) 0%, transparent 70%);
+  filter: blur(42px);
+  animation: hero-cloud-b 72s linear infinite 14s;
+}
+.hero-cloud-c {
+  width: 860px;
+  height: 200px;
+  top: 64%;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(190, 170, 145, 0.038) 0%, transparent 70%);
+  filter: blur(65px);
+  animation: hero-cloud-c 44s linear infinite 7s;
+}
+
+/* Bottom atmospheric blur */
+.hero-bottom-blur {
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 55%);
+  mask-image: linear-gradient(to top, black 0%, transparent 55%);
+  background: radial-gradient(ellipse at bottom center, rgba(139, 69, 19, 0.10) 0%, transparent 70%);
+}
+
+/* Headline animated glow */
+.hero-headline-pulse {
+  animation: hero-headline-pulse 7s ease-in-out infinite;
+}
+
+/* ─── Tombstone card — rotating border glow ─────────────────────────────── */
+
+@keyframes card-border-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Both variants share the same sizing — oversized so only the 1px gap shows */
+.card-glow-spin,
+.card-glow-spin-green {
+  width: 160%;
+  height: 160%;
+  top: -30%;
+  left: -30%;
+  animation: card-border-spin 3.5s linear infinite;
+}
+
+.card-glow-spin {
+  background: conic-gradient(
+    from 0deg,
+    transparent   0deg,
+    rgba(217, 119, 6, 0.95) 22deg,
+    rgba(251, 191, 36, 0.50) 52deg,
+    transparent   82deg
+  );
+}
+
+.card-glow-spin-green {
+  background: conic-gradient(
+    from 0deg,
+    transparent   0deg,
+    rgba(16, 185, 129, 0.90) 22deg,
+    rgba(52, 211, 153, 0.40) 52deg,
+    transparent   82deg
+  );
+}
+
+/* ─── Page-wide atmospheric cloud layer ─────────────────────────────────── */
+
+@keyframes page-cloud-a {
+  0%   { transform: translateX(-115%); }
+  100% { transform: translateX(115%); }
+}
+@keyframes page-cloud-b {
+  0%   { transform: translateX(-90%) translateY(0px); }
+  100% { transform: translateX(120%) translateY(18px); }
+}
+@keyframes page-cloud-c {
+  0%   { transform: translateX(-105%) translateY(0px); }
+  100% { transform: translateX(112%) translateY(-12px); }
+}
+
+.page-cloud {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.page-cloud-a {
+  width: 820px;
+  height: 190px;
+  top: 12%;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(255, 245, 215, 0.028) 0%, transparent 70%);
+  filter: blur(72px);
+  animation: page-cloud-a 85s linear infinite;
+}
+.page-cloud-b {
+  width: 620px;
+  height: 148px;
+  top: 45%;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(210, 190, 160, 0.022) 0%, transparent 70%);
+  filter: blur(58px);
+  animation: page-cloud-b 115s linear infinite 22s;
+}
+.page-cloud-c {
+  width: 1020px;
+  height: 210px;
+  top: 75%;
+  left: 0;
+  background: radial-gradient(ellipse at center, rgba(190, 168, 140, 0.020) 0%, transparent 70%);
+  filter: blur(82px);
+  animation: page-cloud-c 68s linear infinite 38s;
+}
+
+/* Stats ticker marquee */
+.stats-ticker {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll 50s linear infinite;
+}
+.stats-ticker-wrap:hover .stats-ticker {
+  animation-play-state: paused;
+}
+
+/* Project preview hero glow */
+.project-hero-glow {
+  background-image: radial-gradient(circle at 30% 40%, rgba(217,119,6,0.35) 0%, transparent 55%),
+                    radial-gradient(circle at 75% 65%, rgba(188,199,222,0.15) 0%, transparent 50%);
 }
