@@ -130,6 +130,6 @@ src/app/
 **Week 1:** Run setup above, get auth working, test file upload
 **Week 2:** Test project submission end-to-end, morgue grid
 **Week 3:** Test AI diagnosis — needs OpenAI key with GPT-4o access
-**Week 4:** Test adoption + Stripe (use test mode keys)
+**Week 4:** Test adoption + Stripe (use test mode keys) also use of paystack
 **Week 5:** Polish homepage, mobile responsiveness, dashboard
 **Week 6:** Recruit 10 early users, production launch

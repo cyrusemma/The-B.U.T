@@ -4,6 +4,9 @@ node_modules/
 # Next.js
 .next/
 out/
+.next-dev.log
+.next-dev.err.log
+tsconfig.tsbuildinfo
 
 # Environment variables — NEVER commit these
 .env.local
