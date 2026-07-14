@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, User, LayoutDashboard, LogOut, Settings } from 'lucide-react'
+import { ThemeToggle } from '@/components/common/ThemeToggle'
 
 interface NavUser {
   username?: string | null
@@ -46,7 +47,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
       <header
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
           scrolled
-            ? 'bg-[#080C14]/92 backdrop-blur-xl border-b border-amber-900/20 shadow-[0_4px_30px_rgba(0,0,0,0.5)]'
+            ? 'header-scrolled bg-[#080C14]/92 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.4)]'
             : 'bg-transparent border-b border-transparent'
         }`}
       >
@@ -84,6 +85,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
 
           {/* Desktop right actions */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
 
             {user ? (
               <>
@@ -197,6 +199,10 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
 
               {/* Drawer footer */}
               <div className="px-4 py-6 border-t border-white/10 space-y-3">
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <span className="text-xs text-bureau-dim font-sans tracking-widest uppercase">Theme</span>
+                  <ThemeToggle />
+                </div>
 
                 {user ? (
                   <>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Newsreader, Manrope } from 'next/font/google'
 import './globals.css'
 import { CursorGlow } from '@/components/common/CursorGlow'
+import { ThemeProvider } from '@/components/common/ThemeProvider'
 
 const newsreader = Newsreader({
   subsets: ['latin'],
@@ -42,8 +43,10 @@ export default function RootLayout({
       className={`${newsreader.variable} ${manrope.variable} dark`}
     >
       <body className="antialiased bureau-scroll">
-        <CursorGlow />
-        {children}
+        <ThemeProvider>
+          <CursorGlow />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
