@@ -89,6 +89,42 @@ export async function POST(
     return NextResponse.json({ error: 'Project not found' }, { status: 404 })
   }
 
+  // Check if diagnosis already exists to prevent duplicate OpenAI/Claude calls
+  const { data: existingAutopsy } = await supabase
+    .from('autopsies')
+    .select('official_cause, pathologist_diagnosis, pathologist_recommendation, resurrection_difficulty, difficulty_reason, confidence_score')
+    .eq('project_id', params.projectId)
+    .maybeSingle()
+
+  if (existingAutopsy && existingAutopsy.official_cause) {
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      start(controller) {
+        const send = (data: object) =>
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+        
+        send({
+          type: 'done',
+          official_cause: existingAutopsy.official_cause,
+          diagnosis: existingAutopsy.pathologist_diagnosis,
+          recommendation: existingAutopsy.pathologist_recommendation,
+          difficulty: existingAutopsy.resurrection_difficulty,
+          difficulty_reason: existingAutopsy.difficulty_reason,
+          confidence: existingAutopsy.confidence_score,
+        })
+        controller.close()
+      }
+    })
+    
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    })
+  }
+
   const lifespan = project.lifespan_months
     ? `${project.lifespan_months} month${project.lifespan_months !== 1 ? 's' : ''}`
     : 'unknown duration'

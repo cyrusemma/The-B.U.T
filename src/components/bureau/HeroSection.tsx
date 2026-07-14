@@ -77,10 +77,12 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
   return (
     <section className="relative -mt-[72px] min-h-screen flex flex-col overflow-hidden bg-[#04060A]">
 
-      {/* Video background */}
+      {/* Video background with poster frame */}
       <video
         autoPlay loop muted playsInline
-        className="absolute inset-0 h-full w-full object-cover brightness-[0.65] contrast-[1.1]"
+        preload="metadata"
+        poster="/vault-poster.png"
+        className="absolute inset-0 h-full w-full object-cover brightness-[0.45] contrast-[1.15]"
       >
         <source
           src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_094145_4a271a6c-3869-4f1c-8aa7-aeb0cb227994.mp4"
@@ -110,13 +112,13 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
         <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="w-full h-full">
           <defs>
             <linearGradient id="topCG" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#1e2d48" />
-              <stop offset="55%"  stopColor="#131e32" />
-              <stop offset="100%" stopColor="#0d1624" stopOpacity="0.97" />
+              <stop offset="0%"   stopColor="#121722" />
+              <stop offset="55%"  stopColor="#0A0E17" />
+              <stop offset="100%" stopColor="#05080E" stopOpacity="0.97" />
             </linearGradient>
             <radialGradient id="topHL" cx="50%" cy="25%" r="55%">
-              <stop offset="0%"   stopColor="#2e4268" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#0d1624" stopOpacity="0" />
+              <stop offset="0%"   stopColor="#C9A25E" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#05080E" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -147,10 +149,10 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
           />
 
           {/* Wispy underbelly bulges */}
-          <ellipse cx="150" cy="718" rx="105" ry="28" fill="#0a1320" opacity="0.55" />
-          <ellipse cx="380" cy="710" rx="130" ry="32" fill="#0a1320" opacity="0.45" />
-          <ellipse cx="620" cy="718" rx="118" ry="30" fill="#0a1320" opacity="0.50" />
-          <ellipse cx="860" cy="712" rx="100" ry="26" fill="#0a1320" opacity="0.50" />
+          <ellipse cx="150" cy="718" rx="105" ry="28" fill="#05080E" opacity="0.55" />
+          <ellipse cx="380" cy="710" rx="130" ry="32" fill="#05080E" opacity="0.45" />
+          <ellipse cx="620" cy="718" rx="118" ry="30" fill="#05080E" opacity="0.50" />
+          <ellipse cx="860" cy="712" rx="100" ry="26" fill="#05080E" opacity="0.50" />
         </svg>
       </motion.div>
 
@@ -166,13 +168,13 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
         <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="w-full h-full">
           <defs>
             <linearGradient id="botCG" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%"   stopColor="#1e2d48" />
-              <stop offset="55%"  stopColor="#131e32" />
-              <stop offset="100%" stopColor="#0d1624" stopOpacity="0.97" />
+              <stop offset="0%"   stopColor="#121722" />
+              <stop offset="55%"  stopColor="#0A0E17" />
+              <stop offset="100%" stopColor="#05080E" stopOpacity="0.97" />
             </linearGradient>
             <radialGradient id="botHL" cx="50%" cy="75%" r="55%">
-              <stop offset="0%"   stopColor="#2e4268" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#0d1624" stopOpacity="0" />
+              <stop offset="0%"   stopColor="#C9A25E" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#05080E" stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -203,14 +205,13 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
           />
 
           {/* Wispy top-edge bulges */}
-          <ellipse cx="130" cy="282" rx="95"  ry="26" fill="#0a1320" opacity="0.55" />
-          <ellipse cx="370" cy="275" rx="125" ry="30" fill="#0a1320" opacity="0.45" />
-          <ellipse cx="610" cy="280" rx="112" ry="28" fill="#0a1320" opacity="0.50" />
-          <ellipse cx="855" cy="276" rx="98"  ry="25" fill="#0a1320" opacity="0.50" />
+          <ellipse cx="130" cy="282" rx="95"  ry="26" fill="#05080E" opacity="0.55" />
+          <ellipse cx="370" cy="275" rx="125" ry="30" fill="#05080E" opacity="0.45" />
+          <ellipse cx="610" cy="280" rx="112" ry="28" fill="#05080E" opacity="0.50" />
+          <ellipse cx="855" cy="276" rx="98"  ry="25" fill="#05080E" opacity="0.50" />
         </svg>
       </motion.div>
 
-      {/* ── Side wisps — add layered depth ────────────────────────────────────── */}
       <motion.div
         aria-hidden="true"
         className="absolute inset-y-0 left-0 z-[17] pointer-events-none"
@@ -222,8 +223,8 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
         <svg viewBox="0 0 300 1000" preserveAspectRatio="none" className="h-full w-full">
           <defs>
             <linearGradient id="leftWispG" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"  stopColor="#1a2840" />
-              <stop offset="100%" stopColor="#1a2840" stopOpacity="0" />
+              <stop offset="0%"  stopColor="#0A0E17" />
+              <stop offset="100%" stopColor="#0A0E17" stopOpacity="0" />
             </linearGradient>
           </defs>
           <rect width="300" height="1000" fill="url(#leftWispG)" />
@@ -241,8 +242,8 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
         <svg viewBox="0 0 300 1000" preserveAspectRatio="none" className="h-full w-full">
           <defs>
             <linearGradient id="rightWispG" x1="1" y1="0" x2="0" y2="0">
-              <stop offset="0%"  stopColor="#1a2840" />
-              <stop offset="100%" stopColor="#1a2840" stopOpacity="0" />
+              <stop offset="0%"  stopColor="#0A0E17" />
+              <stop offset="100%" stopColor="#0A0E17" stopOpacity="0" />
             </linearGradient>
           </defs>
           <rect width="300" height="1000" fill="url(#rightWispG)" />
@@ -291,7 +292,7 @@ export default function HeroSection({ totalProjects, totalAdoptions, cases = [] 
           >
             <Link
               href="/submit"
-              className="inline-flex items-center gap-3 bg-bureau-gold hover:bg-amber-400 text-black font-semibold text-base px-9 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(217,119,6,0.50)]"
+              className="inline-flex items-center gap-3 bg-bureau-gold hover:bg-[#F2DCA5] text-black font-semibold text-base px-9 py-4 rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(229,193,133,0.35)]"
             >
               <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />

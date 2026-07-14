@@ -14,48 +14,48 @@
 @layer base {
   :root {
     /* Shadcn tokens — dark mode values */
-    --background:   220 47% 6%;
-    --foreground:   210 40% 95%;
-    --card:         220 47% 9%;
-    --card-foreground: 210 40% 95%;
-    --popover:      220 47% 9%;
-    --popover-foreground: 210 40% 95%;
-    --primary:      38 92% 50%;
-    --primary-foreground: 220 47% 6%;
-    --secondary:    217 32% 17%;
-    --secondary-foreground: 210 40% 95%;
-    --muted:        217 32% 17%;
-    --muted-foreground: 215 20% 50%;
-    --accent:       38 72% 25%;
-    --accent-foreground: 38 92% 80%;
+    --background:   220 50% 3%;
+    --foreground:   40 10% 95%;
+    --card:         220 35% 8%;
+    --card-foreground: 40 10% 95%;
+    --popover:      220 35% 8%;
+    --popover-foreground: 40 10% 95%;
+    --primary:      38 65% 71%;
+    --primary-foreground: 220 50% 3%;
+    --secondary:    217 32% 14%;
+    --secondary-foreground: 40 10% 95%;
+    --muted:        217 32% 14%;
+    --muted-foreground: 215 20% 60%;
+    --accent:       38 50% 25%;
+    --accent-foreground: 38 65% 85%;
     --destructive:  0 62% 50%;
     --destructive-foreground: 210 40% 95%;
-    --border:       220 30% 18%;
-    --input:        220 30% 14%;
-    --ring:         38 92% 50%;
+    --border:       220 30% 14%;
+    --input:        220 30% 10%;
+    --ring:         38 65% 71%;
     --radius:       0.25rem;
 
     /* Bureau semantic tokens — dark */
-    --b-void:         #080C14;
-    --b-surface:      #0F1623;
-    --b-card:         #141C2A;
-    --b-elevated:     #1C2535;
-    --b-text:         #F1F5F9;
-    --b-muted:        #94A3B8;
-    --b-dim:          #475569;
-    --b-gold:         #D97706;
-    --b-amber:        #B45309;
+    --b-void:         #05080E;
+    --b-surface:      #0A0E17;
+    --b-card:         #111724;
+    --b-elevated:     #182030;
+    --b-text:         #F5F5F0;
+    --b-muted:        #A3AFBF;
+    --b-dim:          #54657A;
+    --b-gold:         #E5C185;
+    --b-amber:        #C9A25E;
     --b-green:        #10B981;
-    --b-blue:         #bcc7de;
-    --b-abyss:        #04060A;
+    --b-blue:         #C3CCD9;
+    --b-abyss:        #020305;
 
     /* Glass surface formula */
-    --b-glass-bg:     rgba(255, 255, 255, 0.03);
-    --b-glass-border: rgba(255, 255, 255, 0.10);
-    --b-glass-edge:   rgba(255, 255, 255, 0.20);
+    --b-glass-bg:     rgba(255, 255, 255, 0.02);
+    --b-glass-border: rgba(255, 255, 255, 0.06);
+    --b-glass-edge:   rgba(255, 255, 255, 0.12);
 
     /* Cursor glow */
-    --b-cursor-color: rgba(217, 119, 6, 0.18);
+    --b-cursor-color: rgba(229, 193, 133, 0.12);
 
     /* Font variable names (set by next/font in layout.tsx) */
     --font-newsreader: 'Newsreader', Georgia, serif;
@@ -794,14 +794,14 @@
   background: radial-gradient(
     circle,
     var(--b-cursor-color) 0%,
-    rgba(217, 119, 6, 0.06) 50%,
+    rgba(229, 193, 133, 0.03) 50%,
     transparent 70%
   );
   border-radius: 50%;
   filter: blur(40px);
-  transition: left 0.05s linear, top 0.05s linear, opacity 0.3s ease;
-  will-change: left, top;
-  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  will-change: transform;
+  transform: translate3d(0, 0, 0) translate(-50%, -50%);
 }
 
 /* ─── Light mode body background ─────────────────────────────────────────── */
@@ -819,18 +819,18 @@
 
 /* ─── Hero section — cinematic opening ───────────────────────────────────── */
 
-/* Cloud drift keyframes */
+/* Cloud drift keyframes using hardware acceleration */
 @keyframes hero-cloud-a {
-  0%   { transform: translateX(-120%) translateY(0px); }
-  100% { transform: translateX(120%)  translateY(0px); }
+  0%   { transform: translate3d(-120%, 0, 0); }
+  100% { transform: translate3d(120%, 0, 0); }
 }
 @keyframes hero-cloud-b {
-  0%   { transform: translateX(-100%) translateY(0px); }
-  100% { transform: translateX(125%)  translateY(14px); }
+  0%   { transform: translate3d(-100%, 0, 0); }
+  100% { transform: translate3d(125%, 14px, 0); }
 }
 @keyframes hero-cloud-c {
-  0%   { transform: translateX(-80%)  translateY(0px); }
-  100% { transform: translateX(115%)  translateY(-10px); }
+  0%   { transform: translate3d(-80%, 0, 0); }
+  100% { transform: translate3d(115%, -10px, 0); }
 }
 
 /* Headline pulse */
@@ -933,16 +933,16 @@
 /* ─── Page-wide atmospheric cloud layer ─────────────────────────────────── */
 
 @keyframes page-cloud-a {
-  0%   { transform: translateX(-115%); }
-  100% { transform: translateX(115%); }
+  0%   { transform: translate3d(-115%, 0, 0); }
+  100% { transform: translate3d(115%, 0, 0); }
 }
 @keyframes page-cloud-b {
-  0%   { transform: translateX(-90%) translateY(0px); }
-  100% { transform: translateX(120%) translateY(18px); }
+  0%   { transform: translate3d(-90%, 18px, 0); }
+  100% { transform: translate3d(120%, 18px, 0); }
 }
 @keyframes page-cloud-c {
-  0%   { transform: translateX(-105%) translateY(0px); }
-  100% { transform: translateX(112%) translateY(-12px); }
+  0%   { transform: translate3d(-105%, -12px, 0); }
+  100% { transform: translate3d(112%, -12px, 0); }
 }
 
 .page-cloud {

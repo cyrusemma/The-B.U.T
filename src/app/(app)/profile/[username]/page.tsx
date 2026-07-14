@@ -95,6 +95,8 @@ function ProfileAvatar({ profile, initials }: { profile: Profile; initials: stri
           src={profile.avatar_url}
           alt={`${profile.display_name ?? profile.username}'s avatar`}
           className="h-full w-full rounded-full object-cover grayscale transition duration-700 hover:grayscale-0"
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center rounded-full bg-bureau-card text-4xl font-serif text-bureau-gold">

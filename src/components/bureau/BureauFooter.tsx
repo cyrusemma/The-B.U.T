@@ -14,8 +14,8 @@ export default function BureauFooter() {
 
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
-          <div className="arch-sm w-6 h-7 border border-amber-800/40 mx-auto" />
-          <p className="font-serif italic text-amber-700/50 text-sm uppercase tracking-widest">
+          <div className="arch-sm w-6 h-7 border border-bureau-gold/30 mx-auto" />
+          <p className="font-serif italic text-bureau-gold/40 text-sm uppercase tracking-widest">
             The Bureau of Unfinished Things
           </p>
         </div>
@@ -32,7 +32,7 @@ export default function BureauFooter() {
               key={href}
               href={href}
               className="font-sans text-xs uppercase tracking-widest text-slate-600
-                         hover:text-amber-500 transition-colors duration-200"
+                         hover:text-bureau-gold transition-colors duration-200"
             >
               {label}
             </Link>

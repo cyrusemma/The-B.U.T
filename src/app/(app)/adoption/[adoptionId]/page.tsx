@@ -354,7 +354,7 @@ export default function AdoptionChatPage() {
                                 flex items-center justify-center overflow-hidden shrink-0">
                   {counterpart?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={counterpart.avatar_url} alt="" className="w-full h-full object-cover" />
+                    <img src={counterpart.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   ) : (
                     <span className="font-serif text-sm text-bureau-gold">{counterpartInitial}</span>
                   )}
@@ -398,7 +398,7 @@ export default function AdoptionChatPage() {
                       <div className="w-7 h-7 rounded-full bg-white/8 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden mt-0.5">
                         {msg.profiles?.avatar_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={msg.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                          <img src={msg.profiles.avatar_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                         ) : (
                           <span className="font-serif text-[10px] text-bureau-dim">{senderInitial}</span>
                         )}

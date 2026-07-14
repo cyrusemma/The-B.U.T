@@ -66,6 +66,8 @@ export default async function SettingsPage() {
                         src={profile.avatar_url}
                         alt={`${profile.display_name ?? profile.username}'s avatar`}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <span className="font-serif text-lg sm:text-2xl text-bureau-gold">{initials}</span>

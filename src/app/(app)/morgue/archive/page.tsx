@@ -31,10 +31,17 @@ export default function MorgueArchivePage() {
   const [projects, setProjects] = useState<ProjectWithProfile[]>([])
   const [loading, setLoading] = useState(false)
 
-  // Fetch projects on mount
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(filters.search), 350)
+    return () => clearTimeout(t)
+  }, [filters.search])
+
+  // Fetch projects on filter change
   useEffect(() => {
     fetchProjects()
-  }, [filters])
+  }, [filters.eras, filters.causes, filters.sortBy, debouncedSearch])
 
   async function fetchProjects() {
     setLoading(true)
@@ -51,9 +58,9 @@ export default function MorgueArchivePage() {
       }
 
       // Apply search
-      if (filters.search) {
+      if (debouncedSearch) {
         query = query.or(
-          `title.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
+          `title.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`
         )
       }
 

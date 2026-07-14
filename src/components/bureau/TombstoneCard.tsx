@@ -36,69 +36,60 @@ export default function TombstoneCard({ project, index = 0, resurrected }: Tombs
       transition={{ duration: 0.5, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] }}
       className="h-full"
     >
-      {/* Outer: overflow-hidden clips the oversized spinner to just the 1px border gap */}
-      <div className={`group/card relative rounded-lg overflow-hidden h-full cursor-pointer
-        ${resurrected ? 'ring-1 ring-bureau-green/30' : 'ring-1 ring-white/10'}
-        hover:ring-0 transition-all duration-300`}>
+      {/* Outer dossier card container */}
+      <div className={`group/card relative rounded-lg overflow-hidden h-full cursor-pointer bg-bureau-card border
+        ${resurrected ? 'border-bureau-green/20' : 'border-white/5'}
+        hover:border-bureau-gold/30 transition-all duration-300 shadow-lg hover:shadow-[0_4px_24px_rgba(229,193,133,0.06)]`}>
 
-        {/* Oversized spinning conic — only the 1px gap (m-[1px] on inner) shows it */}
+        {/* Double gold frame overlay on hover */}
+        <div className="absolute inset-[3px] border border-dashed border-transparent group-hover/card:border-bureau-gold/15 transition-all duration-500 pointer-events-none rounded-[5px]" />
+
+        {/* Hover underglow */}
         <div
           aria-hidden="true"
-          className={`${spinClass} absolute opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none`}
+          className={`absolute inset-0 bg-gradient-to-t pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-500
+            ${resurrected
+              ? 'from-bureau-green/4 to-transparent'
+              : 'from-bureau-gold/3 to-transparent'
+            }`}
         />
 
-        {/* Card surface — 1px margin reveals the spinner at the edges */}
         <Link href={`/morgue/${project.id}`} className="block h-full">
-          <div className="relative m-[1px] rounded-[7px] bg-bureau-card overflow-hidden h-full flex flex-col">
-
-            {/* Hover underglow */}
-            <div
-              aria-hidden="true"
-              className={`absolute inset-0 bg-gradient-to-t pointer-events-none opacity-0 group-hover/card:opacity-100 transition-opacity duration-500
-                ${resurrected
-                  ? 'from-bureau-green/8 to-transparent'
-                  : 'from-bureau-gold/6 to-transparent'
-                }`}
-            />
+          <div className="relative p-1 overflow-hidden h-full flex flex-col">
 
             {/* ── Header ──────────────────────────────────────────────────── */}
-            <div className="tombstone-header relative">
+            <div className="tombstone-header relative pb-5">
 
-              {/* File number */}
+              {/* File number (dossier style) */}
               <div className="absolute top-3 left-4 flex items-center gap-1.5">
-                <span className={`text-[0.58rem] font-bold tracking-widest uppercase
-                  ${resurrected ? 'text-bureau-green/60' : 'text-bureau-dim'}`}>
-                  {`#${project.id.slice(0, 4).toUpperCase()}`}
+                <span className={`text-[0.6rem] font-mono tracking-wider font-semibold
+                  ${resurrected ? 'text-bureau-green/60' : 'text-bureau-gold/40 group-hover/card:text-bureau-gold/70 transition-colors duration-300'}`}>
+                  CASE // {project.id.slice(0, 6).toUpperCase()}
                 </span>
               </div>
 
               {/* Project type */}
               {project.project_type && (
                 <div className="absolute top-3 right-4">
-                  <span className="text-[0.58rem] font-bold tracking-widest uppercase text-bureau-dim">
+                  <span className="text-[0.58rem] font-mono tracking-widest uppercase text-bureau-dim">
                     {project.project_type}
                   </span>
                 </div>
               )}
 
-              {/* Arch icon */}
-              <div className={`arch-sm w-10 h-12 mx-auto border mb-3 flex items-center justify-center transition-colors duration-300
+              {/* Archival stamp/seal */}
+              <div className={`w-8 h-8 rounded-full border border-dashed mx-auto mb-3 mt-4 flex items-center justify-center transition-colors duration-300
                 ${resurrected
-                  ? 'border-bureau-green/40'
-                  : 'border-white/10 group-hover/card:border-bureau-gold/25'
+                  ? 'border-bureau-green/40 text-bureau-green bg-bureau-green/5'
+                  : 'border-bureau-gold/20 text-bureau-gold/50 group-hover/card:border-bureau-gold/50 group-hover/card:text-bureau-gold'
                 }`}>
-                <span className={`font-serif italic text-[10px] transition-colors duration-300
-                  ${resurrected ? 'text-bureau-green' : 'text-bureau-dim group-hover/card:text-bureau-gold/50'}`}>
-                  {resurrected ? '✦' : 'RIP'}
+                <span className="font-mono text-[8px] uppercase tracking-wider font-bold">
+                  {resurrected ? 'ALV' : 'REC'}
                 </span>
               </div>
 
               {/* Title */}
-              <h3 className={`font-serif text-base leading-snug line-clamp-2 mb-1 transition-colors duration-300
-                ${resurrected
-                  ? 'text-bureau-text'
-                  : 'text-bureau-text group-hover/card:text-amber-100'
-                }`}>
+              <h3 className="font-serif text-base leading-snug line-clamp-2 mb-1 text-bureau-text group-hover/card:text-bureau-gold transition-colors duration-300">
                 {project.title}
               </h3>
 
@@ -106,6 +97,9 @@ export default function TombstoneCard({ project, index = 0, resurrected }: Tombs
               <p className="font-sans text-[0.68rem] text-bureau-dim">
                 by {project.profiles?.display_name ?? project.profiles?.username ?? 'anonymous'}
               </p>
+
+              {/* Grid separator line */}
+              <div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
             </div>
 
             {/* ── Content preview ─────────────────────────────────────────── */}
@@ -145,7 +139,7 @@ export default function TombstoneCard({ project, index = 0, resurrected }: Tombs
             </div>
 
             {/* ── Footer ──────────────────────────────────────────────────── */}
-            <div className="tombstone-footer">
+            <div className="tombstone-footer border-t border-white/5">
               <p className="font-sans text-[0.65rem] text-bureau-dim">
                 {formatDate(project.died_at)}
                 {lifespan && <span className="ml-1.5 text-bureau-dim/60">· {lifespan}</span>}

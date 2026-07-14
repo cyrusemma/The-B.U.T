@@ -165,7 +165,7 @@ export default function EditProfileForm({ profile }: { profile: Profile }) {
               >
                 {previewUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={previewUrl} alt="Avatar preview" className="w-full h-full object-cover" />
+                  <img src={previewUrl} alt="Avatar preview" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : (
                   <span className="font-serif text-2xl text-bureau-gold">{initials}</span>
                 )}

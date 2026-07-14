@@ -60,6 +60,8 @@ export default async function DashboardPage() {
                     src={profile.avatar_url}
                     alt={`${profile.display_name ?? profile.username}'s avatar`}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <span className="font-serif text-xl text-bureau-gold">{initials}</span>

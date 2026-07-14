@@ -54,9 +54,9 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
 
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-2 shrink-0">
-            <div className="arch-sm w-5 h-6 border border-amber-600/50 group-hover:border-amber-500 transition-colors" />
-            <span className="font-serif text-xl italic text-amber-600 group-hover:text-amber-500 transition-colors
-                             drop-shadow-[0_0_8px_rgba(217,119,6,0.25)]">
+            <div className="arch-sm w-5 h-6 border border-bureau-gold/45 group-hover:border-bureau-gold transition-colors" />
+            <span className="font-serif text-xl italic text-bureau-gold group-hover:text-bureau-gold/80 transition-colors
+                             drop-shadow-[0_0_8px_rgba(229,193,133,0.18)]">
               The Bureau
             </span>
             <span className="hidden sm:block text-bureau-dim text-xs font-sans tracking-widest mt-0.5">†</span>
@@ -72,7 +72,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
                   href={href}
                   className={`px-3 py-1.5 rounded text-sm font-sans tracking-wide transition-all duration-200 ${
                     active
-                      ? 'text-amber-500 border-b border-amber-600'
+                      ? 'text-bureau-gold border-b border-bureau-gold/60'
                       : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
                   }`}
                 >
@@ -103,8 +103,8 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
                 </Link>
                 <Link
                   href={`/profile/${user.username}`}
-                  className="w-8 h-8 rounded-full bg-amber-600/20 border border-amber-600/40
-                             flex items-center justify-center hover:border-amber-500 transition-colors overflow-hidden"
+                  className="w-8 h-8 rounded-full bg-bureau-gold/10 border border-bureau-gold/25
+                             flex items-center justify-center hover:border-bureau-gold transition-colors overflow-hidden"
                 >
                   {user.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -112,9 +112,11 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
                       src={user.avatar_url}
                       alt={`${user.display_name ?? user.username}'s avatar`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
-                    <span className="font-serif text-xs text-amber-500">{initials}</span>
+                    <span className="font-serif text-xs text-bureau-gold">{initials}</span>
                   )}
                 </Link>
               </>
@@ -162,7 +164,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
-                <span className="font-serif italic text-amber-600 text-lg">The Bureau</span>
+                <span className="font-serif italic text-bureau-gold text-lg">The Bureau</span>
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
@@ -183,7 +185,7 @@ export default function BureauNavbar({ user }: BureauNavbarProps) {
                       href={href}
                       className={`block px-4 py-3 rounded text-sm font-sans tracking-wide transition-all ${
                         active
-                          ? 'bg-amber-600/10 text-amber-400 border border-amber-600/20'
+                          ? 'bg-bureau-gold/10 text-bureau-gold border border-bureau-gold/20'
                           : 'text-slate-400 hover:text-slate-100 hover:bg-white/5'
                       }`}
                     >
